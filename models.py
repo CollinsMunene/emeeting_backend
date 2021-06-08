@@ -21,8 +21,8 @@ class meeting_info(Base):
     meeting_agenda = Column(String(400))
     start_date_time = Column(String(100))
     end_date_time = Column(String(100))
-    number_of_participants = Column(Integer)
-    votes = Column(Integer)
+    votes_yes = Column(Integer)
+    votes_no = Column(Integer)
 
 class participant_info(Base):
     __tablename__ = "patricipants"
@@ -35,5 +35,4 @@ class document_info(Base):
 
     document_id = Column(Integer, primary_key=True, index=True)
     document_name = Column(String(200))
-    document_path = Column(String(100))
     meeting_id = Column(Integer, ForeignKey("all_meetings.meeting_id"))

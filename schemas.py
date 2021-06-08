@@ -10,7 +10,7 @@
  */
 '''
  
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel
 
 class meetingInfoBase(BaseModel):
@@ -18,8 +18,8 @@ class meetingInfoBase(BaseModel):
     meeting_agenda:str
     start_date_time:str
     end_date_time:str
-    number_of_participants:int
-    votes:int
+    votes_yes:Optional[int] = 0
+    votes_no:Optional[int] = 0
 
 class participantInfo(BaseModel):
     participant_email:str
@@ -27,4 +27,3 @@ class participantInfo(BaseModel):
 class meetingDocuments(BaseModel):
     meeting_id:int
     document_name:str
-    document_path:str
