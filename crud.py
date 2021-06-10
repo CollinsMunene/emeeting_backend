@@ -39,6 +39,7 @@ def get_user_by_id(db: Session, users_id: int):
 # Get all participants for a specific meeting func
 def get_all_participants_by_meeting_id(db:Session,meeting_id:int):
     participants = db.query(models.participant_voting_info).filter(models.participant_voting_info.meeting_id == meeting_id).all()
+    all_part = []
     for i in range(len(participants)):
         user = get_user_by_id(db,users_id=participants[i].users_id)
         issue = get_meeting_issue_by_id(db,meeting_issues_id=participants[i].meeting_issues_id)
@@ -47,12 +48,12 @@ def get_all_participants_by_meeting_id(db:Session,meeting_id:int):
             "user":user,
             "issue":issue
         }
-        return new_participant_info
+        all_part.append(new_participant_info)
+    return all_part
 
 # Get participants who have participated in a specific meeting issue func
 def get_participants_by_meeting_issue_user_id(db:Session,users_id:int,meeting_issues_id:int):
     participants = db.query(models.participant_voting_info).filter(models.participant_voting_info.meeting_issues_id == meeting_issues_id,models.participant_voting_info.users_id == users_id).first()
-    # participant_final = db.query(models.participant_voting_info).filter(models.participant_voting_info.users_id == users_id).first()
     return participants
 
 # User Login func
@@ -66,11 +67,9 @@ def login(db: Session, userData: schemas.userInfo):
             response = {"message":"success","status":"OK","data":db_user}
             return response
         else:
-            response = {"message":"failed","status":"OK","data":"Invalid Password"}
-            return response
+            return "error"
     else:
-        response = {"message":"failed","status":"failed","data":"No User"}
-        return response
+        return "error"
 
 # Get all created meetings func
 def get_all_meetings(db:Session):
@@ -94,7 +93,6 @@ def get_meeting_issue_by_id(db: Session, meeting_issues_id: int):
 
 # Create a new meeting
 def create_meeting(db: Session, meetingData: schemas.meetingInfoBase):
-    print(meetingData)
     db_meeting = models.meeting_info(meeting_name=meetingData.meeting_name,meeting_agenda=meetingData.meeting_agenda,start_date_time=meetingData.start_date_time,end_date_time=meetingData.end_date_time)
     db.add(db_meeting)
     db.commit()
@@ -105,7 +103,6 @@ def create_meeting(db: Session, meetingData: schemas.meetingInfoBase):
 
 # Update an exisiting meeting details
 def update_meeting(db: Session, meetingData:schemas.meetingInfoBase,meeting_id:int):
-    print(meetingData)
     db_meetings = db.query(models.meeting_info).filter(models.meeting_info.meeting_id == meeting_id).first()
     db_meetings.meeting_name = meetingData.meeting_name
     db_meetings.meeting_agenda = meetingData.meeting_agenda
@@ -118,9 +115,8 @@ def update_meeting(db: Session, meetingData:schemas.meetingInfoBase,meeting_id:i
     response = {"message":"success","status":"OK","data":db_meetings}
     return response
 
-#Create 
+# Create a meeting issue that was raised during the meeting func
 def create_meeting_issue(db: Session, meetingIssueData: schemas.meetingIssueInfo):
-    print(meetingIssueData)
     db_meeting_issue = models.meeting_issues_info(issue_name=meetingIssueData.issue_name,meeting_id=meetingIssueData.meeting_id,votes=0)
     db.add(db_meeting_issue)
     db.commit()
@@ -129,16 +125,14 @@ def create_meeting_issue(db: Session, meetingIssueData: schemas.meetingIssueInfo
     response = {"message":"success","status":"OK","data":db_meeting_issue}
     return response
 
+# Vote yes to a meeting issue func
 def up_update_meeting_vote_by_meeting_id(db: Session, meeting_issues_id: int,users_id:int):
     db_meeting = db.query(models.meeting_issues_info).filter(models.meeting_issues_info.meeting_issues_id == meeting_issues_id).first()
-    print(db_meeting.votes)
     newVote = db_meeting.votes + 1 
-    print(newVote)
     db_meeting_updated = db.query(models.meeting_issues_info).filter(models.meeting_issues_info.meeting_issues_id == meeting_issues_id).update({models.meeting_issues_info.votes:newVote})
     db.commit()
 
     db_user = db.query(models.user_info).filter(models.user_info.users_id == users_id).first()
-    print(db_user)
     db_issue_participation = models.participant_voting_info(users_id=db_user.users_id,meeting_id=db_meeting.meeting_id,meeting_issues_id=meeting_issues_id,vote="Yes",hasVoted = True)
     db.add(db_issue_participation)
     db.commit()
@@ -147,16 +141,14 @@ def up_update_meeting_vote_by_meeting_id(db: Session, meeting_issues_id: int,use
     response = {"message":"success","status":"OK","data":db_meeting_updated}
     return response
 
+# Vote no to a meeting issue func
 def down_update_meeting_vote_by_meeting_id(db: Session, meeting_issues_id: int,users_id:int):
     db_meeting = db.query(models.meeting_issues_info).filter(models.meeting_issues_info.meeting_issues_id == meeting_issues_id).first()
-    print(db_meeting)
     newVote = db_meeting.votes + 1 
-    print(newVote)
     db_meeting_updated = db.query(models.meeting_issues_info).filter(models.meeting_issues_info.meeting_issues_id == meeting_issues_id).update({models.meeting_issues_info.votes:newVote})
     db.commit()
 
     db_user = db.query(models.user_info).filter(models.user_info.users_id == users_id).first()
-    print(db_user)
     db_issue_participation = models.participant_voting_info(users_id=db_user.users_id,meeting_id=db_meeting.meeting_id,meeting_issues_id=meeting_issues_id,vote="No",hasVoted = True)
     db.add(db_issue_participation)
     db.commit()
@@ -165,6 +157,7 @@ def down_update_meeting_vote_by_meeting_id(db: Session, meeting_issues_id: int,u
     response = {"message":"success","status":"OK","data":db_meeting_updated}
     return response
 
+# Upload meeting documents func
 def upload_document_by_meeting_id(db: Session, meeting_id:str,document_name:str):
     db_document = models.document_info(meeting_id=meeting_id,document_name=document_name)
     db.add(db_document)

@@ -13,6 +13,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, Time,Boolean
 from database import Base
 
+# User Model
 class user_info(Base):
     __tablename__ = "users"
 
@@ -20,6 +21,7 @@ class user_info(Base):
     email = Column(String(100))
     password = Column(String(200))
 
+# Meeting Model
 class meeting_info(Base):
     __tablename__ = "all_meetings"
 
@@ -29,6 +31,7 @@ class meeting_info(Base):
     start_date_time = Column(String(100))
     end_date_time = Column(String(100))
 
+# Participation Model
 class participant_voting_info(Base):
     __tablename__ = "participants"
 
@@ -39,6 +42,7 @@ class participant_voting_info(Base):
     vote = Column(String(100))
     hasVoted = Column(Boolean)
 
+# Document Model
 class document_info(Base):
     __tablename__ = "meeting_documents"
 
@@ -46,6 +50,7 @@ class document_info(Base):
     document_name = Column(String(200))
     meeting_id = Column(Integer, ForeignKey("all_meetings.meeting_id"))
 
+# Meeting Issue Model
 class meeting_issues_info(Base):
     __tablename__ = "meeting_issues"
 
