@@ -26,8 +26,6 @@ engine = create_engine(
     DATABASE_URL, pool_size=3, max_overflow=0
 )
 
-# local MYSQL  url
-
 # engine = create_engine("mysql+mysqlconnector://root@localhost:3306/e_meeting",echo = True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
