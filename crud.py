@@ -15,12 +15,10 @@ import models, schemas
 import bcrypt
 import os
 
+#Create New User func
 def create_user(db: Session, user: schemas.userInfo):
-    print(user)
-    password = user.password
     salt = os.urandom(32) # A new salt for this user
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-    print("heyy")
+    hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     db_user = models.user_info(email=user.email,password=hashed_password)
     db.add(db_user)
     db.commit()
@@ -29,15 +27,16 @@ def create_user(db: Session, user: schemas.userInfo):
     response = {"message":"success","status":"OK","data":db_user}
     return response
 
-# Get user by email function
+# Get user by email func
 def get_user_by_email(db: Session, email: str):
     return db.query(models.user_info).filter(models.user_info.email == email).first()
 
-# Get user by id function
+# Get user by id func
 def get_user_by_id(db: Session, users_id: int):
     db_user = db.query(models.user_info).filter(models.user_info.users_id == users_id).first()
     return db_user
 
+# Get all participants for a specific meeting func
 def get_all_participants_by_meeting_id(db:Session,meeting_id:int):
     participants = db.query(models.participant_voting_info).filter(models.participant_voting_info.meeting_id == meeting_id).all()
     for i in range(len(participants)):
@@ -50,11 +49,13 @@ def get_all_participants_by_meeting_id(db:Session,meeting_id:int):
         }
         return new_participant_info
 
-def get_participants_by_meeting_issue_user_id(db:Session,meeting_issues_id:int,users_id:int):
-    participants = db.query(models.participant_voting_info).filter(models.participant_voting_info.meeting_issues_id == meeting_issues_id).first()
-    participant_final = db.query(models.participant_voting_info).filter(models.participant_voting_info.users_id == users_id).first()
-    return participant_final
+# Get participants who have participated in a specific meeting issue func
+def get_participants_by_meeting_issue_user_id(db:Session,users_id:int,meeting_issues_id:int):
+    participants = db.query(models.participant_voting_info).filter(models.participant_voting_info.meeting_issues_id == meeting_issues_id,models.participant_voting_info.users_id == users_id).first()
+    # participant_final = db.query(models.participant_voting_info).filter(models.participant_voting_info.users_id == users_id).first()
+    return participants
 
+# User Login func
 def login(db: Session, userData: schemas.userInfo):
     print(userData)
     db_user = db.query(models.user_info).filter(models.user_info.email == userData.email).first()
@@ -71,21 +72,27 @@ def login(db: Session, userData: schemas.userInfo):
         response = {"message":"failed","status":"failed","data":"No User"}
         return response
 
+# Get all created meetings func
 def get_all_meetings(db:Session):
     return db.query(models.meeting_info).all()
 
+# Get a specific meeting details by it's id func
 def get_meeting_by_id(db:Session,meeting_id: int):
     return db.query(models.meeting_info).filter(models.meeting_info.meeting_id==meeting_id).first()
 
+# Get all documents for a meeting func
 def get_documents_by_meeting_id(db: Session, meeting_id: int):
     return db.query(models.document_info).filter(models.document_info.meeting_id==meeting_id).all()
 
+# Get meeting issues raised for a specific meeting
 def get_issue_by_meeting_id(db: Session, meeting_id: int):
     return db.query(models.meeting_issues_info).filter(models.meeting_issues_info.meeting_id==meeting_id).all()
 
+# Get a specific meeting issue by it's id
 def get_meeting_issue_by_id(db: Session, meeting_issues_id: int):
     return db.query(models.meeting_issues_info).filter(models.meeting_issues_info.meeting_issues_id==meeting_issues_id).first()
 
+# Create a new meeting
 def create_meeting(db: Session, meetingData: schemas.meetingInfoBase):
     print(meetingData)
     db_meeting = models.meeting_info(meeting_name=meetingData.meeting_name,meeting_agenda=meetingData.meeting_agenda,start_date_time=meetingData.start_date_time,end_date_time=meetingData.end_date_time)
@@ -96,6 +103,7 @@ def create_meeting(db: Session, meetingData: schemas.meetingInfoBase):
     response = {"message":"success","status":"OK","data":db_meeting}
     return response
 
+# Update an exisiting meeting details
 def update_meeting(db: Session, meetingData:schemas.meetingInfoBase,meeting_id:int):
     print(meetingData)
     db_meetings = db.query(models.meeting_info).filter(models.meeting_info.meeting_id == meeting_id).first()
@@ -110,6 +118,7 @@ def update_meeting(db: Session, meetingData:schemas.meetingInfoBase,meeting_id:i
     response = {"message":"success","status":"OK","data":db_meetings}
     return response
 
+#Create 
 def create_meeting_issue(db: Session, meetingIssueData: schemas.meetingIssueInfo):
     print(meetingIssueData)
     db_meeting_issue = models.meeting_issues_info(issue_name=meetingIssueData.issue_name,meeting_id=meetingIssueData.meeting_id,votes=0)
@@ -139,9 +148,9 @@ def up_update_meeting_vote_by_meeting_id(db: Session, meeting_issues_id: int,use
     return response
 
 def down_update_meeting_vote_by_meeting_id(db: Session, meeting_issues_id: int,users_id:int):
-    db_meeting_issue = db.query(models.meeting_issues_info).filter(models.meeting_issues_info.meeting_issues_id == meeting_issues_id).first()
-    print(db_meeting_issue)
-    newVote = db_meeting_issue.votes + 1 
+    db_meeting = db.query(models.meeting_issues_info).filter(models.meeting_issues_info.meeting_issues_id == meeting_issues_id).first()
+    print(db_meeting)
+    newVote = db_meeting.votes + 1 
     print(newVote)
     db_meeting_updated = db.query(models.meeting_issues_info).filter(models.meeting_issues_info.meeting_issues_id == meeting_issues_id).update({models.meeting_issues_info.votes:newVote})
     db.commit()

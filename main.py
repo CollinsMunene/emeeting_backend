@@ -110,9 +110,9 @@ def main_get_all_meetings(meeting_id,db: Session = Depends(get_db)):
     participants = crud.get_all_participants_by_meeting_id(db,meeting_id=meeting_id)
     return participants
 
-@app.get("/get_participant_info/{meeting_issues_id}/{users_id}",tags=["Voting Routes"])
-def main_get_all_meetings(meeting_issues_id,users_id,db: Session = Depends(get_db)):
-    participant_info = crud.get_participants_by_meeting_issue_user_id(db,meeting_issues_id=meeting_issues_id,users_id=users_id)
+@app.get("/get_participant_info/{users_id}/{meeting_issues_id}",tags=["Voting Routes"])
+def main_get_all_meetings(users_id,meeting_issues_id,db: Session = Depends(get_db)):
+    participant_info = crud.get_participants_by_meeting_issue_user_id(db,users_id=users_id,meeting_issues_id=meeting_issues_id)
     return participant_info
 
 @app.post("/upload_documents",tags=["Documents Routes"])
