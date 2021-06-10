@@ -307,14 +307,11 @@ class ArrayType(BaseType):
         self.c_name_with_marker = (
             self.item.c_name_with_marker.replace('&', brackets))
 
-    def length_is_unknown(self):
-        return isinstance(self.length, str)
-
     def resolve_length(self, newlength):
         return ArrayType(self.item, newlength)
 
     def build_backend_type(self, ffi, finishlist):
-        if self.length_is_unknown():
+        if self.length == '...':
             raise CDefError("cannot render the type %r: unknown length" %
                             (self,))
         self.item.get_cached_btype(ffi, finishlist)   # force the item BType
@@ -433,7 +430,7 @@ class StructOrUnion(StructOrUnionOrEnum):
                 fsize = fieldsize[i]
                 ftype = self.fldtypes[i]
                 #
-                if isinstance(ftype, ArrayType) and ftype.length_is_unknown():
+                if isinstance(ftype, ArrayType) and ftype.length == '...':
                     # fix the length to match the total size
                     BItemType = ftype.item.get_cached_btype(ffi, finishlist)
                     nlen, nrest = divmod(fsize, ffi.sizeof(BItemType))
