@@ -1,0 +1,3 @@
+ssh administrator@brisk.ask.co.ke -p221
+
+scp -P221 step2.js administrator@brisk.ask.co.ke:/home/administrator
