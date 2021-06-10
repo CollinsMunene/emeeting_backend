@@ -13,19 +13,12 @@
 from sqlalchemy.orm import Session
 import models, schemas
 import bcrypt
-import requests
-from requests.auth import HTTPBasicAuth
-import json
-from datetime import datetime
-import base64
-import hashlib
 import os
 
 def create_user(db: Session, user: schemas.userInfo):
     print(user)
     password = user.password
     salt = os.urandom(32) # A new salt for this user
-    # hashed_password = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     print("heyy")
     db_user = models.user_info(email=user.email,password=hashed_password)
@@ -105,7 +98,6 @@ def create_meeting(db: Session, meetingData: schemas.meetingInfoBase):
 
 def update_meeting(db: Session, meetingData:schemas.meetingInfoBase,meeting_id:int):
     print(meetingData)
-    # models.meeting_info.meeting_name:meetingData.meeting_name,models.meeting_info.meeting_agenda:meetingData.meeting_agenda,models.meeting_info.start_date_time:meetingData.start_date_time,models.meeting_info.end_date_time:meetingData.end_date_time
     db_meetings = db.query(models.meeting_info).filter(models.meeting_info.meeting_id == meeting_id).first()
     db_meetings.meeting_name = meetingData.meeting_name
     db_meetings.meeting_agenda = meetingData.meeting_agenda
