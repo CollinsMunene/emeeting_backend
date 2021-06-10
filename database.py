@@ -24,17 +24,17 @@ import os
 # engine = create_engine(DATABASE_URL,echo = True)
 
 
-# DATABASE_URL = os.environ.get('DATABASE_URL')
+DATABASE_URL = os.environ.get('DATABASE_URL')
 
 
-# database = databases.Database(DATABASE_URL)
+database = databases.Database(DATABASE_URL)
 
 
-# engine = create_engine(
-#     DATABASE_URL, pool_size=3, max_overflow=0
-# )
+engine = create_engine(
+    DATABASE_URL, pool_size=3, max_overflow=0
+)
 
-engine = create_engine("mysql+mysqlconnector://root@localhost:3306/e_meeting",echo = True)
+# engine = create_engine("mysql+mysqlconnector://root@localhost:3306/e_meeting",echo = True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
